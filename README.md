@@ -1,20 +1,43 @@
 # Hospital Management System
 
-A small Spring Boot REST API for JWT authentication and patient record management. It uses Java 17+, Spring Web, Spring Security, Spring Data JPA, MySQL, JJWT, Lombok, Jakarta Validation, JUnit 5, and Mockito.
+A backend REST API built using Spring Boot for user authentication and patient record management. The application uses JWT-based authentication to secure patient APIs.
 
-## Project structure
+## Tech Stack
+
+- Java 17
+- Spring Boot
+- Spring Web
+- Spring Security
+- Spring Data JPA
+- MySQL
+- JWT (JJWT)
+- Lombok
+- Jakarta Validation
+- JUnit 5
+- Mockito
+- Maven
+
+## Features
+
+- User registration and login
+- JWT-based authentication
+- Secure patient record management
+- Create, view, update, and delete patient records
+- Request validation
+- Centralized exception handling
+- Unit testing using JUnit and Mockito
+
+## Project Structure
 
 ```text
 src/main/java/com/example/hms/
-├── config/       # JWT service, request filter, and Spring Security
-├── controller/   # Authentication, patient APIs, and API error handling
-├── dto/          # Validated request and response objects
-├── entity/       # User, patient, and role persistence models
-├── repository/   # Spring Data JPA repositories
-├── service/      # Authentication and patient business logic
+├── config/
+├── controller/
+├── dto/
+├── entity/
+├── repository/
+├── service/
 └── HospitalManagementSystemApplication.java
-src/main/resources/application.properties
-src/test/java/com/example/hms/  # A matching JUnit test class for each application class
 ```
 
 ## Requirements
@@ -23,15 +46,26 @@ src/test/java/com/example/hms/  # A matching JUnit test class for each applicati
 - Maven 3.9+
 - MySQL 8+
 
-Create the local database:
+## Database Setup
+
+Create the database in MySQL:
 
 ```sql
 CREATE DATABASE hospital_db;
 ```
 
-Set the connection and signing key in the environment. The JWT key must be Base64 encoded and contain at least 32 random bytes.
+## Environment Variables
 
-PowerShell:
+Configure the following environment variables before running the application:
+
+| Variable | Description |
+|---|---|
+| `DB_URL` | MySQL database connection URL |
+| `DB_USERNAME` | MySQL username |
+| `DB_PASSWORD` | MySQL password |
+| `JWT_SECRET` | Base64-encoded JWT signing key (at least 32 random bytes) |
+
+### PowerShell
 
 ```powershell
 $env:DB_URL = "jdbc:mysql://localhost:3306/hospital_db"
@@ -40,7 +74,7 @@ $env:DB_PASSWORD = "your-local-password"
 $env:JWT_SECRET = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
 ```
 
-Bash:
+### Bash
 
 ```bash
 export DB_URL='jdbc:mysql://localhost:3306/hospital_db'
@@ -49,53 +83,97 @@ export DB_PASSWORD='your-local-password'
 export JWT_SECRET="$(openssl rand -base64 32)"
 ```
 
-Do not commit local credentials or signing keys. Start the application with:
+Do not commit database credentials or JWT signing keys.
+
+## Running the Application
 
 ```bash
 mvn spring-boot:run
 ```
 
-The API listens on `http://localhost:8080`. Hibernate creates or updates the tables at startup.
-
-## API endpoints
-
-| Method | Endpoint | Access |
-| --- | --- | --- |
-| POST | `/api/auth/register` | Public |
-| POST | `/api/auth/login` | Public |
-| POST | `/api/patients` | Bearer token required |
-| GET | `/api/patients` | Bearer token required |
-| GET | `/api/patients/{id}` | Bearer token required |
-| PUT | `/api/patients/{id}` | Bearer token required |
-| DELETE | `/api/patients/{id}` | Bearer token required |
-
-Register with `{"name":"Navya Raj","email":"navya@example.com","password":"secure-pass"}` and log in with the email and password to receive a token. Send it on patient requests as:
+The application runs at:
 
 ```text
+http://localhost:8080
+```
+
+## API Endpoints
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/api/auth/register` | Public |
+| POST | `/api/auth/login` | Public |
+| POST | `/api/patients` | Authenticated |
+| GET | `/api/patients` | Authenticated |
+| GET | `/api/patients/{id}` | Authenticated |
+| PUT | `/api/patients/{id}` | Authenticated |
+| DELETE | `/api/patients/{id}` | Authenticated |
+
+### Authentication
+
+Register a user:
+
+```json
+{
+  "name": "Navya Raj",
+  "email": "navya@example.com",
+  "password": "secure-pass"
+}
+```
+
+Log in using the registered email and password to receive a JWT token.
+
+Include the token in authenticated requests:
+
+```http
 Authorization: Bearer <token>
 ```
 
-Patient request fields are `name`, `age`, `gender`, `disease`, `address`, and `phoneNumber`. Invalid payloads return HTTP 400 with field-level errors. Missing patients return 404; duplicate email addresses return 409.
+### Patient Fields
 
-## Tests
+| Field | Description |
+|---|---|
+| `name` | Patient name |
+| `age` | Patient age |
+| `gender` | Patient gender |
+| `disease` | Patient diagnosis or disease |
+| `address` | Patient address |
+| `phoneNumber` | Patient contact number |
 
-Tests use JUnit 5 and Mockito. With Maven installed, run:
+## Error Handling
+
+| HTTP Status | Description |
+|---|---|
+| 400 | Invalid request data |
+| 404 | Patient not found |
+| 409 | Email already exists |
+
+## Running Tests
 
 ```bash
 mvn test
 ```
 
-The unit tests do not require a running MySQL server.
+Unit tests use JUnit 5 and Mockito and do not require a running MySQL server.
 
-## Feature branch workflow
+## Feature Branches
 
-Each feature starts from `develop`, is committed on its own branch, and is merged back into `develop` when complete. Commit messages use `[Navya Raj] : Commit Message Here`.
+| Branch | Description |
+|---|---|
+| `feature/UC1-entity-class` | Creates the JPA entity classes for the application, including User, Patient, and Role, and defines their database mappings. |
+| `feature/UC2-repository-layer` | Implements the repository layer using Spring Data JPA for database operations on users and patients. |
+| `feature/UC3-dto` | Adds request and response DTOs for the API, including validation rules for incoming data. |
+| `feature/UC4-service` | Implements the business logic for user authentication and patient record management. |
+| `feature/UC5-jwt` | Implements JWT generation, validation, authentication filtering, and the Spring Security configuration. |
+| `feature/UC6-controller` | Implements the REST controllers for authentication and patient APIs, including centralized API exception handling. |
 
-- `feature/UC1-entity-class`
-- `feature/UC2-repository-layer`
-- `feature/UC3-dto`
-- `feature/UC4-service`
-- `feature/UC5-jwt`
-- `feature/UC6-controller`
+## Branch Workflow
 
-This is a backend-only project; it does not include a browser frontend.
+Each feature is developed on its own branch from `develop` and merged back into `develop` after completion.
+
+Commit message format:
+
+```text
+[Navya Raj] : Commit Message Here
+```
+
