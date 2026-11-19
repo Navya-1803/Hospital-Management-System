@@ -1,5 +1,7 @@
 # Build output
 target/
+work/
+outputs/
 
 # IDE files
 .idea/

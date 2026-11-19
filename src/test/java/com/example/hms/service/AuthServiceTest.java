@@ -39,6 +39,12 @@ class AuthServiceTest {
     }
 
     @Test
+    void rejectsRegistrationWithoutName() {
+        AuthRequest request = request(); request.setName(" ");
+        assertThrows(ResponseStatusException.class, () -> service.registerUser(request));
+    }
+
+    @Test
     void logsInWithValidCredentials() {
         User user = new User(); user.setEmail("navya@example.com"); user.setPassword("hashed");
         when(users.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
