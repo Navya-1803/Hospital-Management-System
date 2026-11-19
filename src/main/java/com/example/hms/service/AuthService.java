@@ -27,12 +27,16 @@ public class AuthService {
     }
 
     public AuthResponse registerUser(AuthRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (request.getName() == null || request.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required for registration");
+        }
+        String email = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
         }
         User user = new User();
         user.setName(request.getName());
-        user.setEmail(request.getEmail().trim().toLowerCase());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
         userRepository.save(user);
