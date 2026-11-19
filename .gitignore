@@ -1,0 +1,11 @@
+# Build output
+target/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Local runtime configuration
+application-local.properties
+.env
